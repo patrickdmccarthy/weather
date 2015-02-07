@@ -1,4 +1,5 @@
 var React = require('react'),
+    AddCityForm = require("./AddCityForm"),
     Modal = require('react-bootstrap').Modal,
     Button = require('react-bootstrap').Button, 
     ModalTrigger = require('react-bootstrap').ModalTrigger
@@ -7,15 +8,9 @@ var MyModal = React.createClass({
   render: function() {
     return (
         <Modal {...this.props} title="Modal heading" animation={false}>
-          <div className="modal-body">
-              kkkkk
-          </div>
+          <AddCityForm cancel={this.props.onRequestHide} add={this.props.addCity} />
+          <Button bsStyle="success" onClick={this.props.addCity}>Add</Button>
 
-
-          <div className="modal-footer">
-            <Button onClick={this.props.onRequestHide}>Close</Button>
-            <Button bsStyle="success" onClick={this.props.onRequestHide}>Add</Button>
-          </div>
         </Modal>
       );
   }

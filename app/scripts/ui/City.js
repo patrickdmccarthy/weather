@@ -8,8 +8,7 @@ var City = React.createClass({
   getInitialState: function(){
     // console.log(this.props.data)
     return {
-      showRemove: false,
-      weather: [],
+      weather: [],  
       }
   },
   componentWillMount: function(){
@@ -18,30 +17,35 @@ var City = React.createClass({
 
   },
   componentDidMount: function(){
-    var interval = this.props.data.interval;
+      var interval = this.props.data.interval;
 
-    setInterval(function(){
-        getWeather(this.props.data.name, this);
-    }.bind(this), interval)
+      setInterval(function(){
+        if (this.isMounted()) {
+          getWeather(this.props.data.name, this);
+        }
+      }.bind(this), interval)
   },
   enableShowRemove: function(e){
-    this.state.showRemove = true;
-    console.log('entering', this.state.showRemove);
+    this.setState({showRemove : true});
   },
   disableShowRemove: function(e){
-    this.state.showRemove = false;
-    console.log('leaving', this.showRemove);
+    this.setState({showRemove : false});
+  },
+  update: function(){
+    getWeather(this.props.data.name, this);
   },
   render: function() {
-    return <div className={'text-center col-lg-' + 12/this.props.cities}  onMouseEnter={this.enableShowRemove}  >
+    return (
+      <div className={'text-center col-lg-' + 12/this.props.cities}  onMouseEnter={this.enableShowRemove} onMouseLeave={this.disableShowRemove} >
             <h2>{this.state.weather.city}</h2>
             <p className="lead">{this.state.weather.description}</p>
             <img src={"http://openweathermap.org/img/w/" + this.state.weather.icon +".png"}/>
             <p className="lead"><strong>{this.state.weather.temp}C</strong></p>
             <p><small>Last updated {this.state.weather.date}</small></p>
 
-            <a onClick={this.disableShowRemove}><p><small>Remove City</small></p></a>
-        </div>;
+            { this.state.showRemove ? <a onClick={this.props.remove.bind(null, this.props.index)}><p><small>Remove City</small></p></a> : ''}
+        </div>
+        );
   }
 });
 
