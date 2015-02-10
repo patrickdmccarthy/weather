@@ -1,95 +1,70 @@
 /** @jsx React.DOM */
 
 var React = window.React = require('react/addons'),
+    _ = require('underscore'),
     AddCityForm = require("./ui/AddCityForm"),
     City = require("./ui/City"),
-    mountNode = document.getElementById("app"),
-    Modal = require('react-bootstrap').Modal,
     Button = require('react-bootstrap').Button, 
-    ModalTrigger = require('react-bootstrap').ModalTrigger,
-    _ = require('underscore');
+    mountNode = document.getElementById("app");
+
 
 
 var WeatherApp = React.createClass({
 
   getInitialState: function() {
     return {
-      cities: [{
-        name: 'New York',
-        interval: 10000
-        },
-        {
-        name: 'Berlin',
-        interval: 15000
-        }
-        ],
+      cities: []
     }
   },
   componentWillMount: function(){
-    this.cities =[];
-
-    this.state.cities.forEach(function(city, i){
-      getWeather(city, i, this);
-
-      var interval = {};
-
-      interval[city] = setInterval(function(){
-
-        if(_.find(this.state.cities, city) !== undefined){
-          getWeather(city, i, this)
-        }
-        else{
-          clearTimeout(interval[city])
-        }
-      }.bind(this), city.interval)
-
-    }, this)
-      
-    this.cities =[];
-
-
+    this.interval = {};
   },
-  componentDidMount: function(){
-
-
-  },  
   addCity: function(city){
    var cities = this.state.cities;
-   cities.concat([city]);
-   var index = cities.length;
 
-   getWeather(city, index, this)
+   getWeather(city, this)
 
+
+   this.interval[city.name] = setInterval(function(){
+      if(_.find(this.state.cities, city) !== undefined){
+
+        updateWeather(city, this)
+      }
+      else{
+        clearInterval(this.interval[city.name])
+      }
+
+   }.bind(this), city.interval)
   },
-  removeCity: function(i){
-
+  removeCity: function(name){
 
     var remaining = this.state.cities.filter(function(city){
-        return this.state.cities.indexOf(city) !== i;
+        return city.name !== name;
     }, this);
-    this.setState({cities: remaining});
 
+    this.setState({cities: remaining});
   },
   render: function() {
     return (
       <div className="text-center clearfix">
+        { (!this.state.cities.length) ? <h2>Please add a city below</h2> : ''}
+
         <div className="city clearfix center text-center">
         {this.state.cities.map(function(item, i){
 
-        return <City data={item} cities={this.state.cities.length} index={i} key={i} remove={this.removeCity} />
-        }, this)}
+        return <City data={item} cities={this.state.cities.length} key={i} remove={this.removeCity} />
+        }, this).sort()}
         </div>
-        <AddCityForm addCity={this.addCity}/>
+        { (this.state.cities.length < 6) ? <AddCityForm addCity={this.addCity}/>: <h4>You've hit the maximum number of cities! Why don't you delete one?</h4>}
       </div>
     );
   }
 });
 
 
-function getWeather(city, i, ref){
-  console.log(city)
-
+function getWeather(city, ref){
   $.get('http://api.openweathermap.org/data/2.5/weather?q=' + city.name + '&units=metric', function(result) {
+    var cities = this.state.cities;
     var weather = result.weather[0];
     var d = new Date();
 
@@ -100,14 +75,47 @@ function getWeather(city, i, ref){
       temp: Math.floor(result.main.temp)
     }
 
-    //Create a copy so I don't modify this.state directly
-    var updated = _.clone(city)
-    _.extend(updated, cityWeather)
+    _.extend(city, cityWeather)
 
-    this.cities[i] = updated;
-    ref.setState({cities: ref.cities})
+    cities.push(city);
+    ref.setState({cities: cities})
 
   }.bind(ref))
+}
+
+function updateWeather(city, ref){
+  var update = React.addons.update, 
+      cities = ref.state.cities;
+  // var toBeUpdated = _.find(ref.state.cities, city)
+  var cityIndex;
+
+  for( i = 0; i < cities.length; i++ ){
+    if(city.name === cities[i].name){
+      cityIndex = i;
+    }
+  }
+
+  $.get('http://api.openweathermap.org/data/2.5/weather?q=' + city.name + '&units=metric', function(result) {
+    var weather = result.weather[0];
+    var d = new Date();
+
+
+    var cityWeather = {
+      description: weather.description,
+      icon: weather.icon,
+      date: d.toString(),
+      temp: Math.floor(result.main.temp)
+    }
+
+    _.extend(city, cityWeather)
+
+    var newCities = update(cities, {
+      $splice: [[cityIndex, 1, city]]
+    })
+
+    ref.setState({cities: newCities})
+  })
+
 }
 
 
