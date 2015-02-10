@@ -65,7 +65,7 @@ function getWeather(city, ref){
     data: {q: city.name, units: 'metric'},
     dataType: 'jsonp',
     jsonp: 'callback',
-    jsonpCallback: 'test',
+    jsonpCallback: 'getWeather',
     success: function(result){
 
       var cities = this.state.cities;
@@ -104,7 +104,7 @@ function updateWeather(city, ref){
     data: {q: city.name, units: 'metric'},
     dataType: 'jsonp',
     jsonp: 'callback',
-    jsonpCallback: 'test',
+    jsonpCallback: 'update',
     success: function(result){
       var weather = result.weather[0];
       var d = new Date();
