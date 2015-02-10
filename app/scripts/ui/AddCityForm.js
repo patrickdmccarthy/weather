@@ -2,13 +2,9 @@ var React = require('react'),
     Input = require('react-bootstrap').Input,
     Button = require('react-bootstrap').Button;
 
-
 var AddCityForm = React.createClass({
 
-
   handleSubmit: function(e){
-
-
     e.preventDefault();
     var name = this.refs.city.getInputDOMNode().value.trim();
     var interval = this.refs.interval.getInputDOMNode().value.trim() * 1000;

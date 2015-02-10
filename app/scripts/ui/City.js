@@ -8,9 +8,6 @@ var City = React.createClass({
   getInitialState: function(){
     return {}
   },
-  componentWillUnmount: function(){
-
-  },
   enableShowRemove: function(e){
     this.setState({showRemove : true});
   },

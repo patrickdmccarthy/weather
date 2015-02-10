@@ -7,8 +7,6 @@ var React = window.React = require('react/addons'),
     Button = require('react-bootstrap').Button, 
     mountNode = document.getElementById("app");
 
-
-
 var WeatherApp = React.createClass({
 
   getInitialState: function() {
@@ -23,7 +21,6 @@ var WeatherApp = React.createClass({
    var cities = this.state.cities;
 
    getWeather(city, this)
-
 
    this.interval[city.name] = setInterval(function(){
       if(_.find(this.state.cities, city) !== undefined){
@@ -61,33 +58,39 @@ var WeatherApp = React.createClass({
   }
 });
 
-
 function getWeather(city, ref){
-  $.get('http://api.openweathermap.org/data/2.5/weather?q=' + city.name + '&units=metric', function(result) {
-    var cities = this.state.cities;
-    var weather = result.weather[0];
-    var d = new Date();
+  $.ajax({
+    url: 'http://api.openweathermap.org/data/2.5/weather',
+    dataType: 'jsonp',
+    data: {q: city.name, units: 'metric'},
+    dataType: 'jsonp',
+    jsonp: 'callback',
+    jsonpCallback: 'test',
+    success: function(result){
 
-    var cityWeather = {
-      description: weather.description,
-      icon: weather.icon,
-      date: d.toString(),
-      temp: Math.floor(result.main.temp)
-    }
+      var cities = this.state.cities;
+      var weather = result.weather[0];
+      var d = new Date();
 
-    _.extend(city, cityWeather)
+      var cityWeather = {
+        description: weather.description,
+        icon: weather.icon,
+        date: d.toString(),
+        temp: Math.floor(result.main.temp)
+      }
 
-    cities.push(city);
-    ref.setState({cities: cities})
+      _.extend(city, cityWeather)
 
-  }.bind(ref))
+      cities.push(city);
+      ref.setState({cities: cities})
+    }.bind(ref)
+  })
 }
 
 function updateWeather(city, ref){
   var update = React.addons.update, 
-      cities = ref.state.cities;
-  // var toBeUpdated = _.find(ref.state.cities, city)
-  var cityIndex;
+      cities = ref.state.cities,
+      cityIndex;
 
   for( i = 0; i < cities.length; i++ ){
     if(city.name === cities[i].name){
@@ -95,29 +98,34 @@ function updateWeather(city, ref){
     }
   }
 
-  $.get('http://api.openweathermap.org/data/2.5/weather?q=' + city.name + '&units=metric', function(result) {
-    var weather = result.weather[0];
-    var d = new Date();
+  $.ajax({
+    url: 'http://api.openweathermap.org/data/2.5/weather',
+    dataType: 'jsonp',
+    data: {q: city.name, units: 'metric'},
+    dataType: 'jsonp',
+    jsonp: 'callback',
+    jsonpCallback: 'test',
+    success: function(result){
+      var weather = result.weather[0];
+      var d = new Date();
 
+      var cityWeather = {
+        description: weather.description,
+        icon: weather.icon,
+        date: d.toString(),
+        temp: Math.floor(result.main.temp)
+      }
 
-    var cityWeather = {
-      description: weather.description,
-      icon: weather.icon,
-      date: d.toString(),
-      temp: Math.floor(result.main.temp)
+      _.extend(city, cityWeather)
+
+      var newCities = update(cities, {
+        $splice: [[cityIndex, 1, city]]
+      })
+
+      ref.setState({cities: newCities})
     }
-
-    _.extend(city, cityWeather)
-
-    var newCities = update(cities, {
-      $splice: [[cityIndex, 1, city]]
-    })
-
-    ref.setState({cities: newCities})
   })
-
 }
-
 
 
 React.render(
