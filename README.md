@@ -15,7 +15,7 @@ Next up, you'll want to clone this repo from Github:
 $ git clone https://github.com/patrickdmccarthy/weather.git
 ```
 
-Next, navigate to the weather directory, and install node modules:
+Next, navigate to the weather directory, and install node modules (this takes some time, so be patient):
 
 ```Bash
 $ npm install
