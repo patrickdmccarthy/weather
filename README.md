@@ -31,4 +31,8 @@ Once all node modules have been installed, you can run the application with:
 $ gulp serve
 ```
 
-And then access the application by going to http://localhost:9000/ in your browser.  Enjoy!
+And then access the application by going to http://localhost:9000/ in your browser. 
+
+From there, add anywhere from 1-6 cities, along with a reload interval for each one to track the weather.
+
+Enjoy!
