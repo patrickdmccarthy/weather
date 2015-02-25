@@ -1,3 +1,7 @@
+/**
+    Please, look at the comments in the <App> component before.
+*/
+
 var React = require('react'),
     Input = require('react-bootstrap').Input,
     Button = require('react-bootstrap').Button;
